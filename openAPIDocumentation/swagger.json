@@ -1,0 +1,138 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Ticket Management System API",
+        "description": "A Simple Express Ticket Management System API",
+        "version": "1.0.0",
+        "contact": {
+            "name": "Krishna Poul",
+            "email": "krishna.poul@afourtech.com"
+        }
+    },
+    "servers": [{
+        "url": "http://localhost:3000"
+    }
+    ],
+    "components": {
+        "schemas": {
+          "User": {
+            "type": "object",
+            "required": [
+                
+                "user_name",
+                "password"
+            ],
+            "properties":{
+                "user_id": {
+                    "type": "string",
+                    "description": "User ID Of user"
+                  },
+                "user_name": {
+                    "type": "string",
+                    "description": "User Name Of user"
+                  },
+                  
+                  "password": {
+                    "type": "string",
+                    "description": "Password of user"
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "Role of user"
+                  }
+            },
+            "example": {
+                "user_name": "Krishna",
+                "password": "krish123"
+             
+            }
+
+           }
+          }
+        },
+        "paths":{
+            "/register": {
+              "post": {
+                "tags": [
+                  "Ticket Management System"
+                ],
+                "summary": "save login information to database",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "user registered successfully",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "description": "Bad Request"
+                  },
+                  "500":{
+                      "description":"internal server error"
+                  }
+
+                }
+              }
+            },
+            "/login": {
+                "post": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "login information",
+                  "requestBody": {
+                    "required": true,
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "You are logged in successfully",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
+              }
+          
+        }
+        
+          
+   }
