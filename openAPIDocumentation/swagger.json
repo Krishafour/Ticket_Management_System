@@ -11,14 +11,12 @@
     },
     "servers": [{
         "url": "http://localhost:3000"
-    }
-    ],
+      }],
     "components": {
         "schemas": {
           "User": {
             "type": "object",
             "required": [
-                
                 "user_name",
                 "password"
             ],
@@ -42,14 +40,64 @@
                   }
             },
             "example": {
-                "user_name": "Krishna",
-                "password": "krish123"
-             
-            }
+                "user_name": "krishnapoul@gmail.com",
+                "password": "krish123",
+                "role":"user"
+              }
+              
+            },
+            "Ticket": {
+              "type": "object",
+              "required": [
+                  "ticket_description"
+                ],
+              "properties":{
+                  "ticket_id": {
+                      "type": "string",
+                      "description": "Ticket ID Of user"
+                    },
+                  "ticket_description": {
+                      "type": "string",
+                      "description": "Information of purpose of ticket"
+                    },
+                    "ticket_status": {
+                      "type": "string",
+                      "description": "Status of ticket"
+                    },
+                    "raising_time": {
+                      "type": "string",
+                      "description": "Raising Time of ticket"
+                    },
+                    "status_time": {
+                      "type": "string",
+                      "description": "Status Time of ticket(when the status of ticket get changed)"
+                    },
+                    "created_by": {
+                      "type": "string",
+                      "description": "Owner Of Ticket"
+                    },
+                    "approved_by": {
+                      "type": "string",
+                      "description": "By whom ticket is approved/reject/hold"
+                    }
 
-           }
+              },
+              "example": {
+                  "ticket_description": "for getting internet connection"
+                }
+              }
+          },
+        "securitySchemes": {
+          "jwt": {
+              "type": "http",
+              "scheme": "bearer",
+              "description": "JWT Authorization of an API",
+              "in": "header",
+              "bearerFormat": "JWT"
+            }
           }
         },
+          
         "paths":{
             "/register": {
               "post": {
@@ -130,9 +178,55 @@
 
                   }
                 }
+              },
+              "/user/raise_ticket": {
+                "post": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "Raiseing Ticket information",
+                  "security": [{
+                    "jwt": []
+                  }],
+                  "requestBody": {
+                    "required": true,
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/Ticket"
+                        },
+                        "security": [{
+                          "jwt": []
+                        }]
+                      }
+                    }
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "You are ticket raised successfully",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Ticket"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "401": {
+                      "description": "Unauthorized"
+                    },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
               }
-          
-        }
-        
-          
-   }
+        }    
+}
