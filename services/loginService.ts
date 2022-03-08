@@ -3,7 +3,7 @@ const jwt=require('jsonwebtoken');
 require("dotenv").config();
 
 
-export const auth= (req:Request, res:Response, next:NextFunction) => {
+export const auth= (req:any, res:Response, next:NextFunction) => {
     const { authorization } = req.headers;
     //authorization === Bearer <token>
     if (!authorization) {
@@ -16,7 +16,7 @@ export const auth= (req:Request, res:Response, next:NextFunction) => {
         return res.status(401).send({ error: "token expired" });
     }
     const { user } = payload;
-    req.body.created_by = user;
+   req.user1=user;
     next();
     });
   };

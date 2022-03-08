@@ -1,18 +1,19 @@
-import {all_ticket_info} from'../services/adminService';
+import {all_Ticket_Info} from'../services/adminService';
 import { Request, Response, NextFunction } from 'express';
+import {RESPONSE_STATUS} from '../constants'
 
 
-export let all_ticket:Function=async(req:Request,res:Response):Promise<void>=>{
+export let all_Ticket:Function=async(req:Request,res:Response):Promise<void>=>{
     try
     {
-            const resdata:Array<string>=await all_ticket_info();
-            if(resdata)
-                res.status(200).send(resdata);
+            const resdata:Array<string>|boolean=await all_Ticket_Info(req);
+            if(resdata==false)
+                res.status(RESPONSE_STATUS.FORBIDDEN).send({message:"Forbidden, User is not allow to see all ticket information"});
             else
-                res.status(404).send("Do not have any Ticket"); 
+                res.status(RESPONSE_STATUS.SUCCESS).send(resdata); 
     }
     catch(err:any)
     {
-        res.status(500).send({message:"failed To Get Tickets Information"+err.message})
+        res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Get Tickets Information"+err.message})
     }
 }

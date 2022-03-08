@@ -18,8 +18,8 @@
          "user_id" varchar(100) NOT NULL,
          "ticket_description" VARCHAR(100) NOT NULL,
          "ticket_status" VARCHAR (100) NOT NULL,
-         "raising_time" timestamp NOT NULL,
-         "status_time" timestamp NOT NULL,
+         "created_at" timestamp NOT NULL,
+         "modified_at" timestamp NOT NULL,
          "created_by" VARCHAR(100) NOT NULL,
          "approved_by" VARCHAR(100) NOT NULL,
          CONSTRAINT ticket

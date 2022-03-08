@@ -5,7 +5,7 @@ import {client1} from "./database/db";
 import {execute,text} from "./models/user";
 import {execute1,text1} from "./models/ticket";
 const swaggerDocs:any=require("./openAPIDocumentation/swagger.json");
-const tms:any= require("./routes/ticketmanagementsystem");
+const tms:any= require("./routes/ticketManagementSystem");
 const app:any = express();
 require("dotenv").config();
 

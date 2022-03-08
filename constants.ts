@@ -2,4 +2,11 @@ export const role:any={
   ADMIN:"admin",
   USER:"user"
 }
-export const RESPONSE:string="User already exist"
+export const RESPONSE_STATUS={
+UNAUTHORIZED:401,
+FORBIDDEN:403,
+INTERNAL_SERVER_ERROR:500,
+CONFLICT:409,
+BAD_REQUEST:400,
+SUCCESS:200
+}

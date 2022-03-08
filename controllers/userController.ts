@@ -1,8 +1,8 @@
-import {registration,login,raise_a_ticket} from'../services/userService';
+import {registration,login,raise_A_Ticket} from'../services/userService';
 import { Request, Response, NextFunction } from 'express';
 const jwt=require('jsonwebtoken');
 require("dotenv").config();
-import {RESPONSE} from '../constants'
+import {RESPONSE_STATUS} from '../constants'
 
 
  export let registerUser:Function=async(req:Request,res:Response):Promise<void>=>{
@@ -10,15 +10,15 @@ import {RESPONSE} from '../constants'
       {
             
             const resdata:any=await registration(req);
-            if(resdata==RESPONSE)
-                  res.status(409).send(RESPONSE);
+            if(resdata)
+                  res.status(RESPONSE_STATUS.CONFLICT).send({message:"user already exist"});
             else
-             res.status(200).send("user_id :"+resdata+"\n user registered successfully")
+             res.status(RESPONSE_STATUS.SUCCESS).send({message:"user_id :"+resdata+"user_name"+req.body.user_name+"\n user registered successfully"})
               
       }
       catch(err:any)
       {
-            res.status(500).send({message:"failed To register"+err.message});
+            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To register"+err.message});
       }
 }
 
@@ -30,33 +30,31 @@ export let loginUser:Function=async(req:Request,res:Response):Promise<void>=>{
             if(resdata)
             {     
                   var token:string = jwt.sign({ user: req.body.user_name},process.env.SECRET_KEY,{expiresIn:"60 seconds"});       
-                  res.status(200).send({token});
+                  res.status(RESPONSE_STATUS.SUCCESS).send({token});
             }      
             else
-                  res.status(400).send("Invalid Password");
+                  res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"Invalid Password"});
               
       }
       catch(err:any)
       {          
-            res.status(500).send({message:"failed To login"+err.message});
+            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To login "+err.message});
       }
 }
 
 
-export let raise_ticket:Function=async(req:Request,res:Response):Promise<void>=>{
+export let raise_Ticket:Function=async(req:Request,res:Response):Promise<void>=>{
       try
       {
-            const resdata:any=await raise_a_ticket(req);
+            const resdata:any=await raise_A_Ticket(req);
             if(resdata)
             {     
-                  res.status(200).send("Ticket Raise Successfully");
+                  res.status(RESPONSE_STATUS.SUCCESS).send({meassage:"ticket_id :"+resdata+"    Ticket Raise Successfully"});
             }      
-            else
-            res.status(400).send("Ticket Not Raised");
             
       }
       catch(err:any)
       {
-            res.status(500).send({message:"failed To Raise A Ticket"+err.message});
+            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Raise A Ticket"+err.message});
       }
   }

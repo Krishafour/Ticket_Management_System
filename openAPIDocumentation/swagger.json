@@ -18,8 +18,9 @@
             "type": "object",
             "required": [
                 "user_name",
-                "password"
-            ],
+                "password",
+                "role"
+                ],
             "properties":{
                 "user_id": {
                     "type": "string",
@@ -64,11 +65,11 @@
                       "type": "string",
                       "description": "Status of ticket"
                     },
-                    "raising_time": {
+                    "created_at": {
                       "type": "string",
                       "description": "Raising Time of ticket"
                     },
-                    "status_time": {
+                    "modified_at": {
                       "type": "string",
                       "description": "Status Time of ticket(when the status of ticket get changed)"
                     },
@@ -83,10 +84,101 @@
 
               },
               "example": {
-                  "ticket_description": "for getting internet connection"
+                   "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
+                  "ticket_description": "for getting internet connection",
+                  "ticket_status":"progress",
+                  "created_at":"2022-03-07 12:48:21.314",
+                  "modified_at":"2022-03-07 12:48:21.314",
+                  "created_by":"shivdutjakore@gmail.com",
+                  "approved_by":"aniketkale@gmail.com"
                 }
+              },
+                "ResponseBody_Register_User": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "Id of user"
+                        },
+                        "User_name": {
+                            "type": "string",
+                            "description": "Name of user"
+                        }
+                    },
+                    "example": {
+                        "id": "e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
+                        "user_name": "shivdutjakore@gmail.com",
+                        "message":"user registered successfully"
+
+                    }
+                }, 
+                "RequestBody_Login_User": {
+                  "type": "object",
+                  "required": [
+                      "username",
+                      "password"
+                  ],
+                  "properties": {
+                      "username": {
+                          "type": "string",
+                          "description": "user name of user"
+                      },
+                      "password": {
+                          "type": "string",
+                          "description": "Password of user"
+                      }
+                  },
+                  "example": {
+                      "user_name": "shivdutjakore@gmail.com",
+                      "password": "shivdut23"
+                  }
+              },
+              "ResponseBody_Login_User": {
+                "type": "object",
+                "required": [
+                    "token"
+                ],
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "description": "jwt token of user"
+                    }
+                },
+                "example": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                }
+            },
+                "RequestBody_raise_ticket": {
+                    "type": "object",
+                    "required": [
+                        "ticket_description"
+                    ],
+                    "properties": {
+                        "ticket_description": {
+                            "type": "string",
+                            "description": "details of ticket"
+                        }
+                },
+                "example": {
+                  "ticket_description": "Ticket for getting laptop"
+
               }
-          },
+              },
+                "ResponseBody_raise_ticket": {
+                  "type": "object",
+                  "properties": {
+                      "ticket_id": {
+                          "type": "string",
+                          "description": "Id of Ticket"
+                      }
+                  },
+                  "example": {
+                      "ticket_id": "e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
+                      "message":"ticket raised successfully"
+
+                  }
+              }
+            },
         "securitySchemes": {
           "jwt": {
               "type": "http",
@@ -123,14 +215,22 @@
                         "schema": {
                           "type": "array",
                           "items": {
-                            "$ref": "#/components/schemas/User"
+                            "$ref": "#/components/schemas/ResponseBody_Register_User"
                           }
                         }
                       }
                     }
                   },
                   "400": {
-                    "description": "Bad Request"
+                    "description": "Bad Request",
+                    "content":{
+                      "string":{
+                          "schema":{
+                              "type":"string",
+                              "example":"user name or password or role is required"
+                          }
+                      }
+                  }
                   },
                   "500":{
                       "description":"internal server error"
@@ -150,7 +250,7 @@
                     "content": {
                       "application/json": {
                         "schema": {
-                          "$ref": "#/components/schemas/User"
+                          "$ref": "#/components/schemas/RequestBody_Login_User"
                         }
                       }
                     }
@@ -163,14 +263,22 @@
                           "schema": {
                             "type": "array",
                             "items": {
-                              "$ref": "#/components/schemas/User"
+                              "$ref": "#/components/schemas/ResponseBody_Login_User"
                             }
                           }
                         }
                       }
                     },
                     "400": {
-                      "description": "Bad Request"
+                      "description": "Bad Request",
+                      "content":{
+                        "string":{
+                            "schema":{
+                                "type":"string",
+                                "example":"Invalid passowrd"
+                            }
+                        }
+                    }
                     },
                     "500":{
                         "description":"internal server error"
@@ -193,14 +301,56 @@
                     "content": {
                       "application/json": {
                         "schema": {
-                          "$ref": "#/components/schemas/Ticket"
-                        },
-                        "security": [{
-                          "jwt": []
-                        }]
+                          "$ref": "#/components/schemas/RequestBody_raise_ticket"
+                        }
+                        
                       }
                     }
                   },
+                  "responses": {
+                    "200": {
+                      "description": "You are ticket raised successfully",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/ResponseBody_raise_ticket"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "401": {
+                      "description": "Unauthorized",
+                      "content":{
+                        "string":{
+                            "schema":{
+                                "type":"string",
+                                "example":"Token invalid"
+                            }
+                        }
+                    }
+                    },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
+              },
+              "/admin/all_tickets": {
+                "get": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "Getting Information OF all Ticket",
+                  "security": [{
+                    "jwt": []
+                  }],
                   "responses": {
                     "200": {
                       "description": "You are ticket raised successfully",
@@ -218,8 +368,16 @@
                     "400": {
                       "description": "Bad Request"
                     },
-                    "401": {
-                      "description": "Unauthorized"
+                    "403": {
+                      "description": "forbidden",
+                      "content":{
+                        "string":{
+                            "schema":{
+                                "type":"string",
+                                "example":"User is not allow to see all ticket information"
+                            }
+                        }
+                    }
                     },
                     "500":{
                         "description":"internal server error"
@@ -229,4 +387,4 @@
                 }
               }
         }    
-}
+      }
