@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import {RESPONSE_STATUS} from '../constants';
+import { extendTicketForRequest } from '../returnTypes';
 
-export const validate=async(req:Request,res:Response,next:NextFunction):Promise<void>=>{
+export const validateRegisterUser:Function=async(req:extendTicketForRequest,res:Response,next:NextFunction):Promise<void>=>{
     try{
           if(!req.body.user_name || !req.body.password || !req.body.role)
           {

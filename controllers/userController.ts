@@ -1,60 +1,97 @@
-import {registration,login,raise_A_Ticket} from'../services/userService';
+import {registration,login,raise_A_Ticket,all_Ticket_Info,deleteTicket,allTicketHistory} from'../services/userService';
 import { Request, Response, NextFunction } from 'express';
-const jwt=require('jsonwebtoken');
 require("dotenv").config();
 import {RESPONSE_STATUS} from '../constants'
+import { extendTicketForRequest, extendUserForRequest,userOutputs,ticketInfoOutput} from '../returnTypes';
 
 
- export let registerUser:Function=async(req:Request,res:Response):Promise<void>=>{
+ export let registerUser:Function=async(req:extendUserForRequest,res:Response):Promise<void>=>{
     try
       {
             
-            const resdata:any=await registration(req);
-            if(resdata)
-                  res.status(RESPONSE_STATUS.CONFLICT).send({message:"user already exist"});
+            const resData:userOutputs=await registration(req);
+            if(resData.message)
+                  res.status(resData.status).json(resData.message);
             else
-             res.status(RESPONSE_STATUS.SUCCESS).send({message:"user_id :"+resdata+"user_name"+req.body.user_name+"\n user registered successfully"})
+             res.status(resData.status).json(resData.user+"   User Registered Successfully")
               
       }
       catch(err:any)
       {
-            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To register"+err.message});
+            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).json({message:"failed To register"+err.message});
       }
 }
 
 
-export let loginUser:Function=async(req:Request,res:Response):Promise<void>=>{
+export let loginUser:Function=async(req:extendUserForRequest,res:Response):Promise<void>=>{
     try
       {
-            const resdata:any=await login(req);
-            if(resdata)
+            const resData:userOutputs=await login(req);
+            if(resData.message)
             {     
-                  var token:string = jwt.sign({ user: req.body.user_name},process.env.SECRET_KEY,{expiresIn:"60 seconds"});       
-                  res.status(RESPONSE_STATUS.SUCCESS).send({token});
+                  res.status(resData.status).json(resData.message);
             }      
-            else
-                  res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"Invalid Password"});
-              
       }
       catch(err:any)
       {          
-            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To login "+err.message});
+            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).json({message:"failed To login "+err.message});
       }
 }
 
 
-export let raise_Ticket:Function=async(req:Request,res:Response):Promise<void>=>{
+export let raise_Ticket:Function=async(req: extendTicketForRequest,res:Response):Promise<void>=>{
       try
       {
-            const resdata:any=await raise_A_Ticket(req);
-            if(resdata)
+            const resData:userOutputs=await raise_A_Ticket(req);
+            if(resData.message)
             {     
-                  res.status(RESPONSE_STATUS.SUCCESS).send({meassage:"ticket_id :"+resdata+"    Ticket Raise Successfully"});
+                  res.status(resData.status).json(resData.message);
             }      
             
       }
       catch(err:any)
       {
-            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Raise A Ticket"+err.message});
+            res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).json({message:"failed To Raise A Ticket"+err.message});
+      }
+  }
+  export let all_Ticket:Function=async(req:extendUserForRequest,res:Response):Promise<void>=>{
+      try
+      {
+              const resData:ticketInfoOutput=await all_Ticket_Info(req);
+              if(resData.message)
+                  res.status(resData.status).json(resData.message);
+              else
+                  res.status(resData.status).json(resData.ticket); 
+      }
+      catch(err:any)
+      {
+          res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Get Tickets Information"+err.message})
+      }
+  }
+
+  export let delete_Ticket:Function=async(req:extendUserForRequest,res:Response):Promise<void>=>{
+      try
+      {
+              const resData:ticketInfoOutput=await deleteTicket(req);
+              if(resData.message)
+                  res.status(resData.status).json(resData.message);
+      }
+      catch(err:any)
+      {
+          res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Get Tickets Information"+err.message})
+      }
+  }
+  export let all_Ticket_History:Function=async(req:extendUserForRequest,res:Response):Promise<void>=>{
+      try
+      {
+              const resData:ticketInfoOutput=await allTicketHistory(req);
+              if(resData.message)
+                  res.status(resData.status).json(resData.message);
+              else
+                  res.status(resData.status).json(resData.ticket); 
+      }
+      catch(err:any)
+      {
+          res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Get Tickets Information"+err.message})
       }
   }

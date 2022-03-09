@@ -287,15 +287,16 @@
                   }
                 }
               },
-              "/user/raise_ticket": {
+              "/raise_ticket": {
                 "post": {
                   "tags": [
                     "Ticket Management System"
                   ],
-                  "summary": "Raiseing Ticket information",
+                  "summary": "Raising Ticket information",
                   "security": [{
                     "jwt": []
                   }],
+                 
                   "requestBody": {
                     "required": true,
                     "content": {
@@ -327,14 +328,25 @@
                     "401": {
                       "description": "Unauthorized",
                       "content":{
-                        "string":{
+                        "json":{
                             "schema":{
-                                "type":"string",
+                                "type":"json",
                                 "example":"Token invalid"
                             }
                         }
                     }
-                    },
+                  },
+                  "404": {
+                    "description": "Not Found",
+                    "content":{
+                      "json":{
+                          "schema":{
+                              "type":"json",
+                              "example":"Token Not Found"
+                          }
+                      }
+                  }
+                },
                     "500":{
                         "description":"internal server error"
                     }
@@ -342,7 +354,9 @@
                   }
                 }
               },
-              "/admin/all_tickets": {
+
+              
+              "/all_tickets/{id}": {
                 "get": {
                   "tags": [
                     "Ticket Management System"
@@ -351,9 +365,21 @@
                   "security": [{
                     "jwt": []
                   }],
+                  "parameters": [
+                    {
+                      "in": "path",
+                      "name": "id",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "required": true,
+                        "descrption": "The user ID"
+                      }
+                    }
+                  ],
                   "responses": {
                     "200": {
-                      "description": "You are ticket raised successfully",
+                      "description": "All ticket information of users",
                       "content": {
                         "application/json": {
                           "schema": {
@@ -368,17 +394,160 @@
                     "400": {
                       "description": "Bad Request"
                     },
-                    "403": {
-                      "description": "forbidden",
+                    "401": {
+                      "description": "unauhorized",
                       "content":{
-                        "string":{
+                        "json":{
                             "schema":{
-                                "type":"string",
-                                "example":"User is not allow to see all ticket information"
+                                "type":"json",
+                                "example":"Unauthorized"
+                            }
+                        }
+                     }
+                    },
+                    "404": {
+                      "description": "Not Found",
+                      "content":{
+                        "json":{
+                            "schema":{
+                                "type":"json",
+                                "example":"Token Not Found"
+                            }
+                        }
+                    }
+                  },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
+              },
+              "/delete_ticket/{ticket_id}": {
+                "delete": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "Delete a ticket",
+                  "security": [{
+                    "jwt": []
+                  }],
+                  "parameters": [
+                    {
+                      "in": "path",
+                      "name": "ticket_id",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "required": true,
+                        "descrption": "The ticket ID"
+                      }
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "Ticket deleted successfully",
+                      "content":{
+                        "json":{
+                            "schema":{
+                                "type":"json",
+                                "example":"Not able to withdraw ticket"
                             }
                         }
                     }
                     },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "401": {
+                      "description": "unauhorized",
+                      "content":{
+                        "json":{
+                            "schema":{
+                                "type":"json",
+                                "example":"Not able to withdraw ticket"
+                            }
+                        }
+                    }
+                    },
+                    "404": {
+                      "description": "Not Found",
+                      "content":{
+                        "json":{
+                            "schema":{
+                                "type":"json",
+                                "example":"Token Not Found"
+                            }
+                        }
+                    }
+                  },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
+              },
+              "/all_tickets_history/{id}": {
+                "get": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "Getting Information OF all Ticket",
+                  "security": [{
+                    "jwt": []
+                  }],
+                  "parameters": [
+                    {
+                      "in": "path",
+                      "name": "id",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "required": true,
+                        "descrption": "The user ID"
+                      }
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "All Ticket Information History of Users",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Ticket"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "401": {
+                      "description": "unauhorized",
+                      "content":{
+                        "json":{
+                            "schema":{
+                                "type":"json",
+                                "example":"Unauthorized"
+                            }
+                        }
+                     }
+                    },
+                    "404": {
+                      "description": "Not Found",
+                      "content":{
+                        "json":{
+                            "schema":{
+                                "type":"json",
+                                "example":"Token Not Found"
+                            }
+                        }
+                    }
+                  },
                     "500":{
                         "description":"internal server error"
                     }
