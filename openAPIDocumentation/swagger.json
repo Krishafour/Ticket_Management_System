@@ -95,6 +95,11 @@
               },
                 "ResponseBody_Register_User": {
                     "type": "object",
+                    "required": [
+                      "id",
+                      "user_name",
+                      "successMessage"
+                  ],
                     "properties": {
                         "id": {
                             "type": "string",
@@ -103,15 +108,34 @@
                         "User_name": {
                             "type": "string",
                             "description": "Name of user"
+                        },
+                        "successMessage":{
+                        "type":"string",
+                        "description":"Operation Done message "
                         }
                     },
                     "example": {
                         "id": "e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
                         "user_name": "shivdutjakore@gmail.com",
-                        "message":"user registered successfully"
+                        "successMessage":"user registered successfully"
 
                     }
                 }, 
+                "ResponseBody_Login_User": {
+                  "type": "object",
+                  "required": [
+                      "token"
+                  ],
+                  "properties": {
+                      "token": {
+                          "type": "string",
+                          "description": "jwt token of user"
+                      }
+                  },
+                  "example": {
+                      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                  }
+              },
                 "RequestBody_Login_User": {
                   "type": "object",
                   "required": [
@@ -133,21 +157,78 @@
                       "password": "shivdut23"
                   }
               },
-              "ResponseBody_Login_User": {
+              "RequestBody_Update_Ticket": {
                 "type": "object",
                 "required": [
-                    "token"
+                    "ticket_description"
                 ],
                 "properties": {
-                    "token": {
+                    "ticket_description": {
                         "type": "string",
-                        "description": "jwt token of user"
+                        "description": "ticket description of ticket"
                     }
                 },
                 "example": {
-                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                    "ticket_description": "ticket for getting pc"
                 }
             },
+            "ResponseBody_Update_Ticket": {
+              "type": "object",
+              "required": [
+                  "ticket_id",
+                  "successMessage"
+              ],
+              "properties": {
+                  "ticket_id": {
+                      "type": "string",
+                      "description": "ticket id of ticket"
+                  },
+                  "successMessage": {
+                    "type": "string",
+                    "description": "operation done message"
+                }
+              },
+              "example": {
+                  "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
+                  "successMessage":"Ticket updated successfully"
+              }
+          },
+            "RequestBody_Update_Status": {
+              "type": "object",
+              "required": [
+                  "ticket_status"
+              ],
+              "properties": {
+                  "ticket_status": {
+                      "type": "string",
+                      "description": "ticket status of ticket"
+                  }
+              },
+              "example": {
+                  "ticket_status": "hold"
+              }
+          },
+          "ResponseBody_Update_Status": {
+            "type": "object",
+            "required": [
+                "ticket_id",
+                "successMessage"
+            ],
+            "properties": {
+                "ticket_id": {
+                    "type": "string",
+                    "description": "ticket id of ticket"
+                },
+                "successMessage": {
+                  "type": "string",
+                  "description": "operation done message"
+              }
+            },
+            "example": {
+                "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
+                "successMessage":"Ticket status updated successfully"
+            }
+        },
                 "RequestBody_raise_ticket": {
                     "type": "object",
                     "required": [
@@ -164,6 +245,27 @@
 
               }
               },
+              "ResponseBody_Delete_Ticket": {
+                "type": "object",
+                "required": [
+                    "ticket_id",
+                    "successMessage"
+                ],
+                "properties": {
+                    "ticket_id": {
+                        "type": "string",
+                        "description": "ticket id of ticket"
+                    },
+                    "successMessage": {
+                      "type": "string",
+                      "description": "operation done message"
+                  }
+                },
+                "example": {
+                    "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
+                    "successMessage":"Ticket Deleted successfully"
+                }
+            },
                 "ResponseBody_raise_ticket": {
                   "type": "object",
                   "properties": {
@@ -179,6 +281,7 @@
                   }
               }
             },
+            
         "securitySchemes": {
           "jwt": {
               "type": "http",
@@ -213,10 +316,8 @@
                     "content": {
                       "application/json": {
                         "schema": {
-                          "type": "array",
-                          "items": {
                             "$ref": "#/components/schemas/ResponseBody_Register_User"
-                          }
+                          
                         }
                       }
                     }
@@ -224,10 +325,13 @@
                   "400": {
                     "description": "Bad Request",
                     "content":{
-                      "string":{
+                      "application/json":{
                           "schema":{
-                              "type":"string",
-                              "example":"user name or password or role is required"
+                              "type":"json",
+                              "example":
+                              {
+                                "error":"user name or password or role is required"
+                              }
                           }
                       }
                   }
@@ -261,10 +365,7 @@
                       "content": {
                         "application/json": {
                           "schema": {
-                            "type": "array",
-                            "items": {
                               "$ref": "#/components/schemas/ResponseBody_Login_User"
-                            }
                           }
                         }
                       }
@@ -272,10 +373,15 @@
                     "400": {
                       "description": "Bad Request",
                       "content":{
-                        "string":{
+                        "application/json":{
                             "schema":{
-                                "type":"string",
-                                "example":"Invalid passowrd"
+                                "type":"json",
+                                "example":
+                                {
+                                  "error1":"user name is invalid",
+                                  "error2":"Invalid passowrd"
+                                  
+                                }
                             }
                         }
                     }
@@ -287,7 +393,7 @@
                   }
                 }
               },
-              "/raise_ticket": {
+              "/raiseTicket": {
                 "post": {
                   "tags": [
                     "Ticket Management System"
@@ -314,10 +420,7 @@
                       "content": {
                         "application/json": {
                           "schema": {
-                            "type": "array",
-                            "items": {
                               "$ref": "#/components/schemas/ResponseBody_raise_ticket"
-                            }
                           }
                         }
                       }
@@ -328,10 +431,13 @@
                     "401": {
                       "description": "Unauthorized",
                       "content":{
-                        "json":{
+                        "application/json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Token invalid"
+                                "example":
+                                {
+                                  "error":"Token invalid"
+                                }
                             }
                         }
                     }
@@ -339,10 +445,13 @@
                   "404": {
                     "description": "Not Found",
                     "content":{
-                      "json":{
+                      "application/json":{
                           "schema":{
                               "type":"json",
-                              "example":"Token Not Found"
+                              "example":
+                              {
+                                "error":"Token Not Found"
+                              }
                           }
                       }
                   }
@@ -356,7 +465,7 @@
               },
 
               
-              "/all_tickets/{id}": {
+              "/getTickets": {
                 "get": {
                   "tags": [
                     "Ticket Management System"
@@ -365,18 +474,7 @@
                   "security": [{
                     "jwt": []
                   }],
-                  "parameters": [
-                    {
-                      "in": "path",
-                      "name": "id",
-                      "required": true,
-                      "schema": {
-                        "type": "string",
-                        "required": true,
-                        "descrption": "The user ID"
-                      }
-                    }
-                  ],
+                  
                   "responses": {
                     "200": {
                       "description": "All ticket information of users",
@@ -397,10 +495,12 @@
                     "401": {
                       "description": "unauhorized",
                       "content":{
-                        "json":{
+                        "application/json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Unauthorized"
+                                "example":{
+                                  "error":"Unauthorized"
+                                }
                             }
                         }
                      }
@@ -411,7 +511,10 @@
                         "json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Token Not Found"
+                                "example":
+                                {
+                                  "error":"Token Not Found"
+                                }
                             }
                         }
                     }
@@ -423,7 +526,7 @@
                   }
                 }
               },
-              "/delete_ticket/{ticket_id}": {
+              "/deleteTicket/{ticket_id}": {
                 "delete": {
                   "tags": [
                     "Ticket Management System"
@@ -448,10 +551,88 @@
                     "200": {
                       "description": "Ticket deleted successfully",
                       "content":{
+                        "application/json":{
+                            "schema":{
+                              "$ref": "#/components/schemas/ResponseBody_Delete_Ticket"
+                            }
+                        }
+                    }
+                    },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "401": {
+                      "description": "unauhorized",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"json",
+                                "example":{
+                                  "error":"Not able to withdraw ticket"
+                                }
+                            }
+                        }
+                    }
+                    },
+                    "404": {
+                      "description": "Not Found",
+                      "content":{
                         "json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Not able to withdraw ticket"
+                                "example":
+                                {
+                                  "error":"Token Not Found"
+                                }
+                            }
+                        }
+                    }
+                  },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
+              },
+              "/updateStatus/{ticket_id}": {
+                "put": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "Update a Ticket Status",
+                  "security": [{
+                    "jwt": []
+                  }],
+                  "parameters": [
+                    {
+                      "in": "path",
+                      "name": "ticket_id",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "required": true,
+                        "descrption": "The ticket ID"
+                      }
+                    }
+                  ],
+                  "requestBody": {
+                    "required": true,
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/RequestBody_Update_Status"
+                        }
+                      }
+                    }
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "Ticket Status Updated successfully",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                              "$ref": "#/components/schemas/ResponseBody_Update_Status"
                             }
                         }
                     }
@@ -465,7 +646,10 @@
                         "json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Not able to withdraw ticket"
+                                "example":
+                                {
+                                  "error":"User is not able to update ticket status"
+                                }
                             }
                         }
                     }
@@ -476,7 +660,10 @@
                         "json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Token Not Found"
+                                "example":
+                                {
+                                  "error":"Token Not Found"
+                                }
                             }
                         }
                     }
@@ -488,7 +675,7 @@
                   }
                 }
               },
-              "/all_tickets_history/{id}": {
+              "/getTicketsHistory": {
                 "get": {
                   "tags": [
                     "Ticket Management System"
@@ -497,18 +684,7 @@
                   "security": [{
                     "jwt": []
                   }],
-                  "parameters": [
-                    {
-                      "in": "path",
-                      "name": "id",
-                      "required": true,
-                      "schema": {
-                        "type": "string",
-                        "required": true,
-                        "descrption": "The user ID"
-                      }
-                    }
-                  ],
+              
                   "responses": {
                     "200": {
                       "description": "All Ticket Information History of Users",
@@ -532,7 +708,10 @@
                         "json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Unauthorized"
+                                "example":
+                                {
+                                  "error":"Unauthorized"
+                                }
                             }
                         }
                      }
@@ -543,7 +722,90 @@
                         "json":{
                             "schema":{
                                 "type":"json",
-                                "example":"Token Not Found"
+                                "example":
+                                {
+                                  "error":"Token Not Found"
+                                }
+                            }
+                        }
+                    }
+                  },
+                    "500":{
+                        "description":"internal server error"
+                    }
+
+                  }
+                }
+              },
+              "/updateTicket/{ticket_id}": {
+                "put": {
+                  "tags": [
+                    "Ticket Management System"
+                  ],
+                  "summary": "Update a Ticket Description",
+                  "security": [{
+                    "jwt": []
+                  }],
+                  "parameters": [
+                    {
+                      "in": "path",
+                      "name": "ticket_id",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "required": true,
+                        "descrption": "The ticket ID"
+                      }
+                    }
+                  ],
+                  "requestBody": {
+                    "required": true,
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/RequestBody_Update_Ticket"
+                        }
+                      }
+                    }
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "Ticket Description Updated successfully",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                              "$ref": "#/components/schemas/ResponseBody_Update_Ticket"
+                            }
+                        }
+                    }
+                    },
+                    "400": {
+                      "description": "Bad Request"
+                    },
+                    "401": {
+                      "description": "unauhorized",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"json",
+                                "example":
+                                {
+                                  "error":"Admin is not able to update ticket Description"
+                                }
+                            }
+                        }
+                    }
+                    },
+                    "404": {
+                      "description": "Not Found",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"json",
+                                "example":
+                                {
+                                  "error":"Token Not Found"
+                                }
                             }
                         }
                     }
@@ -557,3 +819,4 @@
               }
         }    
       }
+      

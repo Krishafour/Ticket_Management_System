@@ -12,28 +12,56 @@ export type tickets={
 }
 
 export type users={
-    id?:string,
+    user_id?:string,
     user_name?:string,
     password?:string,
     role?:string,
-    tokenUser_name?:string
-    token?:string
+   
 }
-export interface extendUserForRequest extends Request{
-    user:users,
-    ticket_id?:string
+export type messageDescription={
+    error?:string,
+    token?:string,
+    ticket_id?:string,
+    succssesMessage?:string,
+    user_id?:string
 }
+export interface extendAllForRequest extends Request{
+    user?:users,
+    ticket?:tickets,
+    tokendata:tokenData
+ }
+ export interface extendUserForRequest extends Request{
+    user?:users
+ }
 
-export interface extendTicketForRequest extends Request{
-    ticket:tickets
-}
+
 export interface userOutputs{
     status: number,
-    message?: string,
+    message?: messageDescription,
     user?: users
   }
   export interface ticketInfoOutput{
       status:number,
-      message?:string,
+      message?:messageDescription,
       ticket?:tickets
+  }
+  export interface jwtPayload extends Request{
+      user_id:string,
+      user_name:string,
+      role:string,
+      iat:number,
+      exp:number
+  }
+  export interface tokenData extends Request{
+      user_id:string;
+      user_name:string;
+      role:string
+  }
+  export type user={
+        user_id?:string,
+        user_name:string,
+        password:string,
+        role:string,
+       
+    
   }

@@ -2,27 +2,38 @@ import { Request, Response, NextFunction } from 'express';
 const jwt=require('jsonwebtoken');
 require("dotenv").config();
 import { RESPONSE_STATUS } from '../constants';
-import { extendUserForRequest } from '../returnTypes';
+import { extendAllForRequest ,jwtPayload, tokenData} from '../returnTypes';
 
-export const auth= (req:extendUserForRequest, res:Response, next:NextFunction) => {
+/**
+ * 
+ * This function is used to update ticket of user by user
+ * 
+ * @param {extendAllForRequest} req is of extendALlForRequest which jwt token of user in headers
+ * @param {Response} res is of express.Response
+ * @param {NextFunction} next is of express.NextFunction
+ * @returns {Promis<void>}  this function is return promise of  void
+ */
+
+
+export const auth= (req:extendAllForRequest, res:Response, next:NextFunction):Response<any, Record<string, any>>|undefined => {
     const { authorization } = req.headers;
     //authorization === Bearer <token>
     if (!authorization) {
       return res.status(RESPONSE_STATUS.UNAUTHORIZED).send({ error: "Unauthorized" });
     }
-
     const token = authorization.replace("Bearer ", "");
     if(!token)
      {
        return res.status(RESPONSE_STATUS.NOT_FOUND).send({error:"Token Not found"});
      }
-    jwt.verify(token,process.env.SECRET_KEY, async (err:any, payload:any) => {
+    jwt.verify(token,process.env.SECRET_KEY, async (err:any|unknown, payload:jwtPayload) => {
     if (err)
     {
         return res.status(RESPONSE_STATUS.UNAUTHORIZED).send({ error: "token expired" });
     }
-    const { user }= payload;
-   req.body.tokenUser_name=user;
+   
+   req.tokendata=payload;
+  
     next();
     });
   };

@@ -5,11 +5,11 @@ import {client1} from "./database/db";
 import {execute,text} from "./models/user";
 import {execute1,text1} from "./models/ticket";
 const swaggerDocs:any=require("./openAPIDocumentation/swagger.json");
-const tms:any= require("./routes/ticketManagementSystem");
+const tms:string= require("./routes/ticketManagementSystem");
 const app:any = express();
 require("dotenv").config();
 
-const port:any = process.env.PORT;
+const port:string |undefined= process.env.PORT;
 client1.on("connect",()=>{
     console.log("connected to postgres");
 });

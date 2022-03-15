@@ -22,6 +22,7 @@
          "modified_at" timestamp NOT NULL,
          "created_by" VARCHAR(100) NOT NULL,
          "approved_by" VARCHAR(100) NOT NULL,
+         "is_deleted" boolean DEFAULT false NOT NULL,
          CONSTRAINT ticket
          PRIMARY KEY ("ticket_id"),
             FOREIGN KEY("user_id") 

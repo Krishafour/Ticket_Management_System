@@ -14,7 +14,7 @@ export const execute = async (query:any) => {
 
 export const text = `
     CREATE TABLE IF NOT EXISTS "users" (
-	    "id" varchar(100) NOT NULL,
+	    "user_id" varchar(100) NOT NULL,
 	    "user_name" VARCHAR(100) NOT NULL,
         "password" VARCHAR (100) NOT NULL,
 	    "role" VARCHAR(15) NOT NULL,

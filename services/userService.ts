@@ -1,185 +1,275 @@
-import { Request, Response, NextFunction } from 'express';
 import {client1} from "../database/db";
 import bcryptjs from 'bcryptjs';
-import { v4 as uuidv4 } from "uuid";
-import { extendUserForRequest, userOutputs,extendTicketForRequest, ticketInfoOutput } from '../returnTypes';
-import { RESPONSE_STATUS, ROLE} from '../constants';
+import { stringify, v4 as uuidv4 } from "uuid";
+import {  userOutputs,extendAllForRequest, ticketInfoOutput, users, tokenData, tickets,user } from '../returnTypes';
+import { RESPONSE_STATUS, ROLE,USER_TABLE_QUERIES,TICKETS_TABLE_QUERIES, TICKET_STATUS} from '../constants';
 import { QueryResult } from 'pg';
+import { databaseOperation } from "../database/queryfunctions";
 const jwt=require('jsonwebtoken');
-const constants=require('../constants');
 
- export const registration=async(req : extendUserForRequest):Promise<userOutputs>=>{
+
+ /**
+ * This function is used to update ticket of user by user
+ *
+ * @param {user} body is of user which include user_name,password,role of user
+ * @returns {Promis<userOutputs>}  this function is return promise of userOutputs which include user_id of successfully registered user
+ */
+ export const registration=async(body:user):Promise<userOutputs>=>{
     return new Promise(async(resolve,reject)=>{
         try
         {   //check if data already exist
             //fucntion add
-            const user:QueryResult=await client1.query(constants.USERNAME_USING_USERNAME,[req.body.user_name]);
+            const user:QueryResult=await databaseOperation(USER_TABLE_QUERIES.USERNAME_USING_USERNAME,[body.user_name]);
             if(user.rowCount!=0)
             {
-                return resolve({status:RESPONSE_STATUS.CONFLICT,message:"user already exist"});
+                return resolve({status:RESPONSE_STATUS.CONFLICT,message:{error:"user already exist"}});
             }
             //creating unique id
             const uniqueId:string = uuidv4();
-            req.body.id=uniqueId;
+            body.user_id=uniqueId;
             //add data if not exist already
-            const hashedPassword = await bcryptjs.hash(req.body.password, 10);
-            const response:QueryResult=await client1.query(constants.INSERT_USER,[req.body.id,req.body.user_name,hashedPassword,req.body.role.toLowerCase()]);
+            const hashedPassword = await bcryptjs.hash(body.password, 10);
+            const response:QueryResult=await databaseOperation(USER_TABLE_QUERIES.INSERT_USER,[body.user_id,body.user_name,hashedPassword,body.role.toLowerCase()]);
             if(response)
-                return resolve({status:RESPONSE_STATUS.SUCCESS,user:req.body.id});
+                return resolve({status:RESPONSE_STATUS.SUCCESS,message:{user_id:body.user_id,succssesMessage:body.role.toLowerCase()+" registered successfully"}});
         }
-        catch(error:any)
+        catch(error:any|unknown)
         {
             
             return reject(error);
         }
     })
 }
-export const login=async(req : extendUserForRequest):Promise<userOutputs>=>{
+
+
+ /**
+ * This function is main function used to login by useror admin.
+ * 
+ * @param {user} body is of user which include user_name and password of user
+ * @returns {Promis<userOutputs>}  this function is return promise of userOutputs which include jwt token of user logged in successfully 
+ */
+export const login=async(body: user):Promise<userOutputs>=>{
     return new Promise(async(resolve,reject)=>{
         try
         {   
             //check username is present or NOT
-            const user:QueryResult=await client1.query(constants.USERNAME_USING_USERNAME,[req.body.user_name]);
+            const user:QueryResult=await databaseOperation(USER_TABLE_QUERIES.USERNAME_USING_USERNAME,[body.user_name]);
             if(user.rowCount==0)
             {
-                return resolve({status:RESPONSE_STATUS.BAD_REQUEST,message:"user name Invalid"});
+                return resolve({status:RESPONSE_STATUS.BAD_REQUEST,message:{error:"User name invalid"}});
             }
             //get password using user_name
-            const passwordlog:QueryResult=await client1.query(constants.PASSWORD_USING_USERNAME,[req.body.user_name]);
+            const passwordlog:QueryResult=await databaseOperation(USER_TABLE_QUERIES.PASSWORD_USER_ID_ROLE_USING_USERNAME,[body.user_name]);
             const passwordcode=passwordlog.rows;
 
-            if(await bcryptjs.compare(req.body.password, passwordcode[0].password))
+            if(await bcryptjs.compare(body.password, passwordcode[0].password))
             {   
-                var token:string = jwt.sign({ user: req.body.user_name},process.env.SECRET_KEY,{expiresIn:"1800 seconds"});      
-                    return resolve({status:RESPONSE_STATUS.SUCCESS,message:token});
+                var token:string = jwt.sign({user_id:passwordlog.rows[0].user_id, user_name: body.user_name,role:passwordlog.rows[0].role},process.env.SECRET_KEY,{expiresIn:"1800 seconds"});      
+                    return resolve({status:RESPONSE_STATUS.SUCCESS,message:{token:token}});
             }
             else
             {
-                return resolve({status:RESPONSE_STATUS.BAD_REQUEST,message:"invalid Password"});
+                return resolve({status:RESPONSE_STATUS.BAD_REQUEST,message:{error:"Invalid password"}});
             }
         }
-        catch(error:any)
+        catch(error:unknown)
         {
             
             return reject(error);
         }
     })
 }
-export const raise_A_Ticket=async(req : extendTicketForRequest):Promise<userOutputs>=>{
+
+
+
+ /**
+ * This function is main function used to raise a ticket  by user
+ *
+ * @param {tickets} body is of tickets which include ticket_description of user
+ * @param {tokenData} token is of tokenData which includes user login information
+ * @returns {Promis<ticketInfoOutput>}  this function is return promise of ticketInfoOutput which include raised ticket ticket_id
+ */
+export const raise_A_Ticket=async(body:tickets,token:tokenData):Promise<ticketInfoOutput>=>{
     return new Promise(async(resolve,reject)=>{
         try
         {   
             //create unique id
             const uniqueId:string = uuidv4();
             var dateTime = new Date();
-            req.body.ticket_id=uniqueId;
+            body.ticket_id=uniqueId;
             //default status progress
-            req.body.ticket_status="progress";
-            const userId:QueryResult=await client1.query(constants.ID_USING_USERNAME,[req.body.tokenUser_name]);
-            //check role of user
-            const userRole:QueryResult=await client1.query(constants.ROLE_USING_USERNAME,[req.body.tokenUser_name]);
-            if(userRole.rows[0].role==ROLE.ADMIN)
+            body.ticket_status="progress";
+            if(token.role==ROLE.ADMIN)
             {
-                return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:"Admin cannot raise a ticket"});
+                return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:{error:"Admin cannot raise a ticket"}});
             }
             //set created_by as user_name of user
-            req.body.created_by=req.body.tokenUser_name;
+            body.created_by=token.user_name;
             //set foreign key user_id 
-            req.body.user_id=userId.rows[0].id;
+            body.user_id=token.user_id;
             //set date and time 
-            req.body.modified_at=dateTime;
-            req.body.created_at=dateTime;
+            body.modified_at=dateTime;
+            body.created_at=dateTime;
             //set approved_by default
-            req.body.approved_by="not_approved_yet";
-            const response:QueryResult=await client1.query(constants.INSER_TICKET,[req.body.ticket_id,req.body.user_id,req.body.ticket_description,req.body.ticket_status,req.body.created_at,req.body.modified_at,req.body.created_by,req.body.approved_by]);
+            body.approved_by="not_approved_yet";
+            const response:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.INSERT_TICKET,[body.ticket_id,body.user_id,body.ticket_description.toLocaleLowerCase(),body.ticket_status,body.created_at,body.modified_at,body.created_by,body.approved_by]);
             if(response)
-                return resolve({status:RESPONSE_STATUS.SUCCESS,message:req.body.ticket_id +"   Ticket Raised Succssfully"});
+                return resolve({status:RESPONSE_STATUS.SUCCESS,message:{ticket_id:body.ticket_id ,succssesMessage:"Ticket raised succssfully"}});
         }
-        catch(error:any)
+        catch(error:any|unknown)
         {
             return reject(error);
         }
     })
 }
-export let all_Ticket_Info:Function=async(req:extendUserForRequest):Promise<ticketInfoOutput>=>{
+
+
+
+ /**
+ * This function is main function used to get all ticket of user by user or admin
+ *
+ * @param {tokenData} token is of tokenData which includes user login information
+ * @returns {Promis<ticketInfoOutput>}  this function is return promise of ticketInfoOutput which include ticket informaton
+ */
+export let all_Ticket_Info:Function=async(token:tokenData):Promise<ticketInfoOutput>=>{
     return new Promise(async(resolve,reject)=>{
         try{
             
-            const roleOfUser:QueryResult=await client1.query(constants.ROLE_USING_USERNAME,[req.body.tokenUser_name]);
-            const userNameOfUser:QueryResult=await client1.query(constants.USERNAME_USING_ID,[req.params.id]);
-
-             if(userNameOfUser.rows[0].user_name!=req.body.tokenUser_name)
-             {
-                 return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:"Unauthorized"});
-             }
-            if(roleOfUser.rows[0].role==constants.ROLE.USER)
-               {
-                   const ticketInfo:any= await client1.query(constants.TICKET_INFORMATION_OF_USER,[req.params.id]);
-                   return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
-                }
+            
+            if(token.role==ROLE.USER)
+            {
+                const ticketInfo:any|unknown= await databaseOperation(TICKETS_TABLE_QUERIES.TICKET_INFORMATION_OF_USER,[token.user_id,false]);
+                return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
+            }
             else
             {
-                const ticketInfo:any=await client1.query(constants.TICKET_INFORMATION);
-                    return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
+                const ticketInfo:any|unknown=await databaseOperation(TICKETS_TABLE_QUERIES.TICKET_INFORMATION,[false]);
+                return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
             }
          }
-        catch(err:any)
+        catch(err:any|unknown)
         {
             return reject(err);
         }
     })
 }
-export const deleteTicket:Function=async(req : extendUserForRequest):Promise<userOutputs>=>{
+
+
+
+ /**
+ * This function is main function used to delete ticket of user by user or admin
+ *
+ * @param {tickets} param is of tickets which include ticket_id of user
+ * @param {tokenData} token is of tokenData which includes user login information
+ * @returns {Promis<ticketInfoOutput>}  this function is return promise of ticketInfoOutput which include deleted ticket ticket_id
+ */
+export const deleteTicket:Function=async(param:tickets,token:tokenData):Promise<ticketInfoOutput>=>{
     return new Promise(async(resolve,reject)=>{
         try
         {   
-            const userId:QueryResult=await client1.query(constants.USERID_USING_TICKETID,[req.params.ticket_id]);
-            const userName:QueryResult=await client1.query(constants.USERNAME_USING_ID,[userId.rows[0].user_id])
-            if(userName.rows[0].user_name!=req.body.tokenUser_name)
+           
+            const userId:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.USER_ID_USING_TICKET_ID,[param.ticket_id]);
+            if(userId.rows[0].user_id!=token.user_id && token.role==ROLE.USER)
             {
-                return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:"Not able to withdraw ticket"});
+
+                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"User is not allow to delete this ticket"}});
             }
-            const status:QueryResult=await client1.query(constants.STATUS_USING_TICKETID,[req.params.ticket_id]);
-            if(status.rows[0].ticket_status==constants.TICKET_STATUS.APPROVE||status.rows[0].ticket_status==constants.TICKET_STATUS.REJECT)
+            const deleteStatus:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.IS_DELETED_USING_TICKET_ID,[param.ticket_id])
+            if(deleteStatus.rows[0].is_deleted)
             {
-                return resolve({status:RESPONSE_STATUS.BAD_REQUEST,message:"You are not allow to delete approve and reject ticket "});
+                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"User is not allowed delete deleted ticket"}});
             }
-            const del:QueryResult=await client1.query(constants.DELETE_TICKET_USING_TICKETID,[req.params.ticket_id]);
+            
+            const dateTime:Date=new Date();
+            const del:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.DELETE_TICKET_USING_TICKETID,[true,dateTime,param.ticket_id]);
             if(del.rowCount!=0)
             {
-                return resolve({status:RESPONSE_STATUS.SUCCESS,message:"Your ticket deleted successfully"});
+                return resolve({status:RESPONSE_STATUS.SUCCESS,message:{ticket_id:param.ticket_id,succssesMessage:"Your ticket deleted successfully"}});
             }
         }
-        catch(error:any)
+        catch(error:any|unknown)
         {
             
             return reject(error);
         }
     })
 }
-export let allTicketHistory:Function=async(req:extendUserForRequest):Promise<ticketInfoOutput>=>{
+
+ /**
+ * This function is main function used to get ticket history of user by user or admin
+ *
+ * @param {tokenData} token is of tokenData which includes user login information
+ * @returns {Promis<ticketInfoOutput>}  this function is return promise of ticketInfoOutput which include all ticket infromation
+ */
+export let allTicketHistory:Function=async(token:tokenData):Promise<ticketInfoOutput>=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            
-            const roleOfUser:QueryResult=await client1.query(constants.ROLE_USING_USERNAME,[req.body.tokenUser_name]);
-            const userNameOfUser:QueryResult=await client1.query(constants.USERNAME_USING_ID,[req.params.id]);
-
-             if(userNameOfUser.rows[0].user_name!=req.body.tokenUser_name)
-             {
-                 return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:"Unauthorized"});
-             }
-            if(roleOfUser.rows[0].role==constants.ROLE.USER)
-               {
-                   const ticketInfo:any= await client1.query(constants.TICKET_INFORMATION_HISTORY_OF_USER,[req.params.id,constants.TICKET_STATUS.APPROVE,constants.TICKET_STATUS.REJECT]);
-                   return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
-                }
+            if(token.role==ROLE.USER)
+            {
+                const ticketInfo:any|unknown= await databaseOperation(TICKETS_TABLE_QUERIES.TICKET_INFORMATION_HISTORY_OF_USER,[token.user_id,false,TICKET_STATUS.APPROVED,TICKET_STATUS.REJECTED]);
+                return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
+            }
             else
             {
-                const ticketInfo:any=await client1.query(constants.TICKET_INFORMATION_HISTORY,[constants.TICKET_STATUS.APPROVE,constants.TICKET_STATUS.REJECT]);
-                    return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
+                const ticketInfo:any|unknown=await databaseOperation(TICKETS_TABLE_QUERIES.TICKET_INFORMATION_HISTORY,[TICKET_STATUS.APPROVED,TICKET_STATUS.REJECTED,false]);
+                return resolve({status:RESPONSE_STATUS.SUCCESS,ticket:ticketInfo.rows});
             }
          }
-        catch(err:any)
+        catch(err:any|unknown)
+        {
+            return reject(err);
+        }
+    })
+}
+
+
+
+ /**
+ * This function is main function used to update ticket of user by user
+ *
+ * @param {tickets} param is of tickets which include ticket_id of user
+ * @param {tickets} body is of tickets which include ticket_description of user
+ * @param {tokenData} token is of tokenData which includes user login information
+ * @returns {Promis<ticketInfoOutput>}  this function is return promise of ticketInfoOutput which include updated ticket_description ticket_id
+ */
+
+export let updateTicket:Function=async(param:tickets,body:tickets,token:tokenData):Promise<ticketInfoOutput>=>{
+    return new Promise(async(resolve,reject)=>{
+        try
+        {
+            const userId:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.USER_ID_USING_TICKET_ID,[param.ticket_id]);
+            if(userId.rows[0].user_id!=token.user_id)
+            {
+
+                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"User is not allow to update ticket of other user"}});
+            }
+            
+            if(token.role==ROLE.ADMIN)
+            {
+                return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:{error:"Admin cannot update ticket information of user"}});
+            }
+            const deleteStatus:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.IS_DELETED_USING_TICKET_ID,[param.ticket_id]);
+            if(deleteStatus.rows[0].is_deleted)
+            {
+                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"You are not allowed to update ticket of deleted ticket"}});
+            }
+            const ticketStatus:QueryResult= await databaseOperation(TICKETS_TABLE_QUERIES.TICKET_STATUS_USING_TICKET_ID,[param.ticket_id,false]);
+            if(ticketStatus.rows[0].ticket_status==TICKET_STATUS.APPROVED || ticketStatus.rows[0].ticket_status==TICKET_STATUS.REJECTED)
+            {
+                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"User Can Not Update Ticket Description of Approved and Rejected Ticket"}});
+            }
+            else
+            {
+                var dateTime:Date = new Date();
+                body.modified_at=dateTime;
+                const ticket_Info:QueryResult=await databaseOperation(TICKETS_TABLE_QUERIES.UPDATE_TICKET_DESCRIPTION,[body.ticket_description,body.modified_at,param.ticket_id]);
+                if(ticket_Info.rowCount!=0)
+                {    
+                    return resolve({status:RESPONSE_STATUS.SUCCESS,message:{ticket_id:param.ticket_id,succssesMessage:"Ticket Description Updated Succssfully"}});
+                }
+            }
+        }
+        catch(err:any|unknown)
         {
             return reject(err);
         }
