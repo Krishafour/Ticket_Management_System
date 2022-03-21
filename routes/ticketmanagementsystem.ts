@@ -10,16 +10,16 @@ router.post("/register",validateRegisterUser,registerUser);
 
 router.post("/login",validateLoginUser,loginUser);
 
-router.post("/raiseTicket",validateRaise_Ticket,auth,raise_Ticket);
+router.post("/raise_ticket",validateRaise_Ticket,auth,raise_Ticket);
 
-router.get("/getTickets",auth,all_Ticket);
+router.get("/get_tickets",auth,all_Ticket);
 
-router.put("/updateStatus/:ticket_id",validateUpdate_Status,auth,update_Status);
+router.put("/update_status/:ticket_id",validateUpdate_Status,auth,update_Status);
 
-router.delete("/deleteTicket/:ticket_id",auth,delete_Ticket);
+router.delete("/delete_ticket/:ticket_id",auth,delete_Ticket);
 
-router.get("/getTicketsHistory",auth,all_Ticket_History);
+router.get("/get_tickets_history",auth,all_Ticket_History);
 
-router.put("/updateTicket/:ticket_id",validateUpdate_Ticket,auth,update_Ticket);
+router.put("/update_ticket/:ticket_id",validateUpdate_Ticket,auth,update_Ticket);
 
 module.exports = router;

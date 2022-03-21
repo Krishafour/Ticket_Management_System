@@ -29,15 +29,12 @@ export let updateStatus:Function=async(param:tickets,body:tickets,token:tokenDat
             {
                 return resolve({status:RESPONSE_STATUS.UNAUTHORIZED,message:{error:"User not allowed to update status"}});
             }
-            else if(body.ticket_status==TICKET_STATUS.PROGRESS)
-            {
-                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"Admin Not Set ticket_status as Progress"}});
-            }
+            
          
             const ticketStatus:QueryResult=await client1.query(TICKETS_TABLE_QUERIES.TICKET_STATUS_USING_TICKET_ID,[param.ticket_id,false]);
-            if(ticketStatus.rows[0].ticket_status==TICKET_STATUS.HOLD)
+            if(ticketStatus.rows[0].ticket_status==TICKET_STATUS.HOLD ||ticketStatus.rows[0].ticket_status==TICKET_STATUS.PROGRESS)
             {
-                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"Admin can not set ticket status as hold if ticket status already on hold "}});
+                return resolve({status:RESPONSE_STATUS.FORBIDDEN,message:{error:"Admin can not set ticket status as hold or progress if ticket status already on hold or progress respectively "}});
             }
             else if(ticketStatus.rows[0].ticket_status==TICKET_STATUS.APPROVED||ticketStatus.rows[0].ticket_status==TICKET_STATUS.REJECTED)
             {
@@ -45,13 +42,13 @@ export let updateStatus:Function=async(param:tickets,body:tickets,token:tokenDat
             }
             else
             {
-                var dateTime = new Date();
+                var dateTime:Date = new Date();
                 body.modified_at=dateTime;
-                body.approved_by=token.user_name;
-                const ticket_Info:QueryResult=await client1.query(TICKETS_TABLE_QUERIES.UPDATE_TICKET_STATUS,[body.ticket_status,body.modified_at,body.approved_by,param.ticket_id]);
+                body.ticket_status_changed_by=token.user_name;
+                const ticket_Info:QueryResult=await client1.query(TICKETS_TABLE_QUERIES.UPDATE_TICKET_STATUS,[body.ticket_status.toLowerCase(),body.modified_at,body.ticket_status_changed_by,param.ticket_id]);
                 if(ticket_Info.rowCount!=0)
                 {    
-                    return resolve({status:RESPONSE_STATUS.SUCCESS,message:{ticket_id:param.ticket_id,succssesMessage:"Ticket Status Updated Succssfully "}});
+                    return resolve({status:RESPONSE_STATUS.SUCCESS,message:{ticket_id:param.ticket_id,succsses_message:"Ticket Status Updated Succssfully "}});
                 }
             }
         }

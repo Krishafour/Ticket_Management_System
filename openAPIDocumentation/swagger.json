@@ -98,7 +98,7 @@
                     "required": [
                       "id",
                       "user_name",
-                      "successMessage"
+                      "success_message"
                   ],
                     "properties": {
                         "id": {
@@ -109,7 +109,7 @@
                             "type": "string",
                             "description": "Name of user"
                         },
-                        "successMessage":{
+                        "success_message":{
                         "type":"string",
                         "description":"Operation Done message "
                         }
@@ -117,7 +117,7 @@
                     "example": {
                         "id": "e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
                         "user_name": "shivdutjakore@gmail.com",
-                        "successMessage":"user registered successfully"
+                        "success_message":"user registered successfully"
 
                     }
                 }, 
@@ -176,21 +176,21 @@
               "type": "object",
               "required": [
                   "ticket_id",
-                  "successMessage"
+                  "success_message"
               ],
               "properties": {
                   "ticket_id": {
                       "type": "string",
                       "description": "ticket id of ticket"
                   },
-                  "successMessage": {
+                  "success_message": {
                     "type": "string",
                     "description": "operation done message"
                 }
               },
               "example": {
                   "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
-                  "successMessage":"Ticket updated successfully"
+                  "success_message":"Ticket updated successfully"
               }
           },
             "RequestBody_Update_Status": {
@@ -212,21 +212,21 @@
             "type": "object",
             "required": [
                 "ticket_id",
-                "successMessage"
+                "success_message"
             ],
             "properties": {
                 "ticket_id": {
                     "type": "string",
                     "description": "ticket id of ticket"
                 },
-                "successMessage": {
+                "success_message": {
                   "type": "string",
                   "description": "operation done message"
               }
             },
             "example": {
                 "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
-                "successMessage":"Ticket status updated successfully"
+                "success_message":"Ticket status updated successfully"
             }
         },
                 "RequestBody_raise_ticket": {
@@ -249,21 +249,21 @@
                 "type": "object",
                 "required": [
                     "ticket_id",
-                    "successMessage"
+                    "success_message"
                 ],
                 "properties": {
                     "ticket_id": {
                         "type": "string",
                         "description": "ticket id of ticket"
                     },
-                    "successMessage": {
+                    "success_message": {
                       "type": "string",
                       "description": "operation done message"
                   }
                 },
                 "example": {
                     "ticket_id":"e8c3fde5-e371-4eb2-b230-cf52f4a5b53b",
-                    "successMessage":"Ticket Deleted successfully"
+                    "success_message":"Ticket Deleted successfully"
                 }
             },
                 "ResponseBody_raise_ticket": {
@@ -299,7 +299,7 @@
                 "tags": [
                   "Ticket Management System"
                 ],
-                "summary": "save login information to database",
+                "summary": "save registration information to database",
                 "requestBody": {
                   "required": true,
                   "content": {
@@ -378,8 +378,8 @@
                                 "type":"json",
                                 "example":
                                 {
-                                  "error1":"user name is invalid",
-                                  "error2":"Invalid passowrd"
+                                  "error_1":"user name is invalid",
+                                  "error_2":"Invalid passowrd"
                                   
                                 }
                             }
@@ -393,12 +393,12 @@
                   }
                 }
               },
-              "/raiseTicket": {
+              "/raise_ticket": {
                 "post": {
                   "tags": [
                     "Ticket Management System"
                   ],
-                  "summary": "Raising Ticket information",
+                  "summary": "Raising ticket information",
                   "security": [{
                     "jwt": []
                   }],
@@ -436,7 +436,7 @@
                                 "type":"json",
                                 "example":
                                 {
-                                  "error":"Token invalid"
+                                  "error":"Admin cannot raise a ticket"
                                 }
                             }
                         }
@@ -465,12 +465,12 @@
               },
 
               
-              "/getTickets": {
+              "/get_tickets": {
                 "get": {
                   "tags": [
                     "Ticket Management System"
                   ],
-                  "summary": "Getting Information OF all Ticket",
+                  "summary": "Getting information of all tickets by user or admin",
                   "security": [{
                     "jwt": []
                   }],
@@ -526,7 +526,7 @@
                   }
                 }
               },
-              "/deleteTicket/{ticket_id}": {
+              "/delete_ticket/{ticket_id}": {
                 "delete": {
                   "tags": [
                     "Ticket Management System"
@@ -568,7 +568,20 @@
                             "schema":{
                                 "type":"json",
                                 "example":{
-                                  "error":"Not able to withdraw ticket"
+                                  "error":"Not able to withdraw ticket which is already withdrawal"
+                                }
+                            }
+                        }
+                    }
+                    },
+                    "403": {
+                      "description": "Forbidden",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"json",
+                                "example":{
+                                  "error":"Not able to withdraw ticket of others"
                                 }
                             }
                         }
@@ -595,12 +608,12 @@
                   }
                 }
               },
-              "/updateStatus/{ticket_id}": {
+              "/update_status/{ticket_id}": {
                 "put": {
                   "tags": [
                     "Ticket Management System"
                   ],
-                  "summary": "Update a Ticket Status",
+                  "summary": "Update a ticket status",
                   "security": [{
                     "jwt": []
                   }],
@@ -654,6 +667,21 @@
                         }
                     }
                     },
+                    "403": {
+                      "description": "Forbidden",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"json",
+                                "example":{
+                                  "error_1":"Admin can not set ticket status as hold or progress if ticket status already on hold or progress respectively ",
+                                  "error_2":"you are not allowed to update status of deleted ticket",
+                                  "error_3":"Admin can not change status of Approved and Rejected Ticket"
+                                }
+                            }
+                        }
+                    }
+                    },
                     "404": {
                       "description": "Not Found",
                       "content":{
@@ -675,12 +703,12 @@
                   }
                 }
               },
-              "/getTicketsHistory": {
+              "/get_tickets_history": {
                 "get": {
                   "tags": [
                     "Ticket Management System"
                   ],
-                  "summary": "Getting Information OF all Ticket",
+                  "summary": "Getting information history of all tickets",
                   "security": [{
                     "jwt": []
                   }],
@@ -737,12 +765,12 @@
                   }
                 }
               },
-              "/updateTicket/{ticket_id}": {
+              "/update_ticket/{ticket_id}": {
                 "put": {
                   "tags": [
                     "Ticket Management System"
                   ],
-                  "summary": "Update a Ticket Description",
+                  "summary": "Update a ticket description",
                   "security": [{
                     "jwt": []
                   }],
@@ -791,6 +819,21 @@
                                 "example":
                                 {
                                   "error":"Admin is not able to update ticket Description"
+                                }
+                            }
+                        }
+                    }
+                    },
+                    "403": {
+                      "description": "Forbidden",
+                      "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"json",
+                                "example":{
+                                  "error_1":"Not able to update ticket description of others",
+                                  "error_2":"You are not allowed to update ticket of deleted ticket",
+                                  "error_3":"User can not update ticket description of approved and rejected ticket"
                                 }
                             }
                         }

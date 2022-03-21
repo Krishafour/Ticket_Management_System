@@ -29,9 +29,9 @@ export const validateRegisterUser:Function=async(req:extendAllForRequest,res:Res
               res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"email is not valid"});
               return;
           }
-          if(!req.body.user_name.trim())
+          if( !req.body.password.trim())
           {
-              res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"user_name or password or role should not be empty"});
+              res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"password  should not be empty"});
               return;
           }
          
@@ -49,7 +49,7 @@ export const validateRegisterUser:Function=async(req:extendAllForRequest,res:Res
     }
     catch(err:any|unknown)
     {
-        res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request"+err.message});
+        res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request "+err.message});
     }
     next();
 }
@@ -68,7 +68,7 @@ export const validateLoginUser:Function=async(req:extendAllForRequest,res:Respon
                res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"user_name or password is required"});
                return;
              }
-             if(!req.body.user_name.trim()||req.body.password.trim())
+             if(!req.body.user_name.trim()||!req.body.password.trim())
              {
                  res.status(RESPONSE_STATUS.BAD_REQUEST).send({error:"user_name or password should not be empty"});
                  return;
@@ -86,7 +86,7 @@ export const validateLoginUser:Function=async(req:extendAllForRequest,res:Respon
        }
        catch(err:any|unknown)
        {
-           res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request"+err.message});
+           res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request "+err.message});
        }
        next();
    }
@@ -124,7 +124,7 @@ export const validateLoginUser:Function=async(req:extendAllForRequest,res:Respon
        }
        catch(err:any|unknown)
        {
-           res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request"+err.message});
+           res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request "+err.message});
        }
        next();
    }
@@ -162,7 +162,7 @@ export const validateLoginUser:Function=async(req:extendAllForRequest,res:Respon
        }
        catch(err:any|unknown)
        {
-           res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request"+err.message});
+           res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request "+err.message});
        }
        next();
    }
@@ -201,7 +201,7 @@ export const validateUpdate_Status:Function=async(req:extendAllForRequest,res:Re
   }
   catch(err:any|unknown)
   {
-      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request"+err.message});
+      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To get request "+err.message});
   }
   next();
 }

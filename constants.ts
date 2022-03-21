@@ -26,13 +26,13 @@ export const USER_TABLE_QUERIES={
    USERNAME_USING_USERNAME:`SELECT user_name from users where user_name=$1`
 }
 export const TICKETS_TABLE_QUERIES={
- TICKET_INFORMATION:`SELECT ticket_id,user_id,ticket_description,ticket_status,created_at,modified_at,created_by,approved_by from tickets where is_deleted=$1`,
- INSERT_TICKET:`INSERT INTO "tickets" ("ticket_id","user_id","ticket_description","ticket_status", "created_at","modified_at","created_by","approved_by")VALUES ($1, $2,$3,$4,$5,$6,$7,$8)`,
- UPDATE_TICKET_STATUS:`UPDATE tickets SET ticket_status=$1,modified_at=$2,approved_by=$3 where ticket_id=$4`,
- TICKET_INFORMATION_OF_USER:`SELECT ticket_id,user_id,ticket_description,ticket_status,created_at,modified_at,created_by,approved_by from tickets where user_id=$1 AND is_deleted=$2`,
- DELETE_TICKET_USING_TICKETID:`UPDATE tickets SET is_deleted=$1,modified_at=$2 where ticket_id=$3`,
- TICKET_INFORMATION_HISTORY_OF_USER:`SELECT ticket_id,user_id,ticket_description,ticket_status,created_at,modified_at,created_by,approved_by from tickets where user_id=$1 AND is_deleted=$2 AND ticket_status=$3 OR ticket_status=$4`,
- TICKET_INFORMATION_HISTORY:`SELECT ticket_id,ticket_description,ticket_status,created_at,modified_at,created_by,approved_by from tickets where ticket_status=$1 OR ticket_status=$2 AND is_deleted=$3`,
+ TICKET_INFORMATION:`SELECT ticket_id,user_id,ticket_description,ticket_status,created_at,modified_at,created_by,ticket_status_changed_by from tickets where is_deleted=$1`,
+ INSERT_TICKET:`INSERT INTO "tickets" ("ticket_id","user_id","ticket_description","ticket_status", "created_at","modified_at","created_by","ticket_status_changed_by")VALUES ($1, $2,$3,$4,$5,$6,$7,$8)`,
+ UPDATE_TICKET_STATUS:`UPDATE tickets SET ticket_status=$1,modified_at=$2,ticket_status_changed_by=$3 where ticket_id=$4`,
+ TICKET_INFORMATION_OF_USER:`SELECT ticket_id,user_id,ticket_description,ticket_status,created_at,modified_at,created_by,ticket_status_changed_by from tickets where user_id=$1 AND is_deleted=$2`,
+ DELETE_TICKET_USING_TICKETID:`UPDATE tickets SET is_deleted=$1,modified_at=$2,ticket_status=$3 where ticket_id=$4`,
+ TICKET_INFORMATION_HISTORY_OF_USER:`SELECT ticket_id,user_id,ticket_description,ticket_status,created_at,modified_at,created_by,ticket_status_changed_by from tickets where user_id=$1 AND is_deleted=$2 AND (ticket_status=$3 OR ticket_status=$4)`,
+ TICKET_INFORMATION_HISTORY:`SELECT ticket_id,ticket_description,ticket_status,created_at,modified_at,created_by,ticket_status_changed_by from tickets where ticket_status=$1 OR ticket_status=$2 AND is_deleted=$3`,
  TICKET_STATUS_USING_TICKET_ID:`SELECT ticket_status from tickets where ticket_id=$1  AND is_deleted=$2`,
  UPDATE_TICKET_DESCRIPTION:`UPDATE tickets SET ticket_description=$1,modified_at=$2 where ticket_id=$3`,
  USER_ID_USING_TICKET_ID:`SELECT user_id from tickets where ticket_id=$1`,

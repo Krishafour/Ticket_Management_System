@@ -147,7 +147,7 @@ export let raise_Ticket:Function=async(req: extendAllForRequest,res:Response):Pr
                 res.status(resData.status).json(resData.message);
             
     }
-    catch(err: unknown|any|unknown)
+    catch(err: any|unknown)
     {
         res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR).send({message:"failed To Update Ticket "+err.message})
          console.log(err);

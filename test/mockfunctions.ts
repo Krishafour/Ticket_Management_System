@@ -1,12 +1,5 @@
 import nock from "nock";
-
-  describe("mock api calls",() =>{
-    it("register by user",  () => {
-       
-      // const app=require('./mockfunctions')
-      // const response=app.scope()
-      // console.log(response)
-      nock("https://localhost")
+export function scope (){nock("https://localhost")
      .post(`/register`, {
       user_name: 'user@gmail.com',
       password: 'user123',
@@ -17,6 +10,4 @@ import nock from "nock";
       password: 'user123',
       role:"user"
      }});
-    });
-  }
-  )  
+}

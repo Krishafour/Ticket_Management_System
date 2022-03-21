@@ -15,13 +15,13 @@ import { extendAllForRequest ,jwtPayload, tokenData} from '../returnTypes';
  */
 
 
-export const auth= (req:extendAllForRequest, res:Response, next:NextFunction):Response<any, Record<string, any>>|undefined => {
+export const auth:Function= (req:extendAllForRequest, res:Response, next:NextFunction):Response<any, Record<string, any>>|undefined => {
     const { authorization } = req.headers;
     //authorization === Bearer <token>
     if (!authorization) {
       return res.status(RESPONSE_STATUS.UNAUTHORIZED).send({ error: "Unauthorized" });
     }
-    const token = authorization.replace("Bearer ", "");
+    const token:string = authorization.replace("Bearer ", "");
     if(!token)
      {
        return res.status(RESPONSE_STATUS.NOT_FOUND).send({error:"Token Not found"});
